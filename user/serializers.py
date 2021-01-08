@@ -19,3 +19,5 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = CustomUser.objects.create_user(validated_data['username'], validated_data['email'], validated_data['password'])
 
         return user
+
+

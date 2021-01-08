@@ -1,13 +1,14 @@
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from knox.models import AuthToken
+from rest_framework.pagination import PageNumberPagination
 from .serializers import UserSerializer, RegisterSerializer
 from django.contrib.auth import login
-
+from rest_framework.filters import SearchFilter
 from rest_framework import permissions
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
-
+from .models import *
 
 # Register API
 class RegisterAPI(generics.GenericAPIView):
@@ -31,4 +32,14 @@ class LoginAPI(KnoxLoginView):
         user = serializer.validated_data['user']
         login(request, user)
         return super(LoginAPI, self).post(request, format=None)
-        
+
+
+class UserListView(generics.ListAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = [SearchFilter]
+    pagination_class.page_size_query_param = 'limit'
+    search_fields = ['username']
+    
+
