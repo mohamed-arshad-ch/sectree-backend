@@ -2,7 +2,7 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from knox.models import AuthToken
 from rest_framework.pagination import PageNumberPagination
-from .serializers import UserSerializer, RegisterSerializer
+from .serializers import UserSerializer, RegisterSerializer, UserUpdateSerializer
 from django.contrib.auth import login
 from rest_framework.filters import SearchFilter
 from rest_framework import permissions
@@ -41,5 +41,41 @@ class UserListView(generics.ListAPIView):
     filter_backends = [SearchFilter]
     pagination_class.page_size_query_param = 'limit'
     search_fields = ['username']
+
+class UpdateUser(generics.UpdateAPIView):
+    
+    serializer_class = UserUpdateSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def get(self, request,id):
+        queryset = CustomUser.objects.get(id=id)
+        serializer = self.get_serializer(queryset)
+        return Response(serializer.data)
+
+    def update(self, request,id,*args):
+        
+        queryset = CustomUser.objects.get(id=id)
+        
+        queryset.username = request.data.get("username")
+        queryset.email = request.data.get("email")
+        queryset.set_password(request.data.get("password"))
+        queryset.fname = request.data.get("fname")
+        queryset.laname = request.data.get("laname")
+        queryset.phone_number = request.data.get("phone_number")
+        queryset.porifile_img = request.data.get("porifile_img")
+        queryset.wallet = request.data.get("wallet")
+        queryset.right_parent = request.data.get("right_parent")
+        queryset.left_parent = request.data.get("left_parent")
+        
+
+
+
+
+        queryset.save()
+
+        serializer = self.get_serializer(queryset)
+        
+
+        return Response(serializer.data)
     
 
