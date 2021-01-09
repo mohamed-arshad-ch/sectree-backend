@@ -79,3 +79,13 @@ class UpdateUser(generics.UpdateAPIView):
         return Response(serializer.data)
     
 
+class ReadUserList(generics.UpdateAPIView):
+    serializer_class = UserUpdateSerializer
+    # permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, id):
+        queryset = CustomUser.objects.get(id=id)
+        serializer = self.get_serializer(queryset)
+        return Response(serializer.data)
+
+
