@@ -9,6 +9,7 @@ from rest_framework import permissions
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
 from .models import *
+import boto3
 
 # Register API
 class RegisterAPI(generics.GenericAPIView):
@@ -89,3 +90,34 @@ class ReadUserList(generics.UpdateAPIView):
         return Response(serializer.data)
 
 
+class RestRequest(generics.GenericAPIView):
+    
+    def get(self, request):
+        # Create an SNS client
+        client = boto3.client(
+            "sns",
+            aws_access_key_id="AKIAJZCVGDCSNMEKDVBA",
+            aws_secret_access_key="q1dm33uqbLPPZ17RZoNQ1QxmdVh/ln4EKpDrQWFT",
+            region_name="ap-south-1"
+        )
+
+        
+        # Send your sms message.
+        responce = client.publish(
+            
+            PhoneNumber="+919847274569",
+            Message="Hello World!"
+        )
+
+        
+        return Response(data=responce)
+
+class DeleteAllUser(generics.GenericAPIView):
+
+    serializer_class = UserSerializer
+
+    def delete(self,request):
+
+        queryset = CustomUser.objects.all().delete()
+        
+        return Response({"message":"Dlete All User Successfully"})
