@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/v1/user/update/<int:id>', UpdateUser.as_view(), name='updateuser'),
     path('api/v1/user/read/<int:id>', ReadUserList.as_view(), name='readuserlist'),
     path('api/v1/user/rest/request', RestRequest.as_view(), name='restrequest'),
+    path('api/v1/user/rest/verify', RestVerify.as_view(), name='restverify'),
     path('api/v1/user/delete', DeleteAllUser.as_view(), name='deletealluser'),
 
 

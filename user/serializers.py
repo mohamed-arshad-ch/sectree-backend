@@ -69,3 +69,9 @@ class SendOtpSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('id','emailaddress')
+
+class VerifyOtpSerializer(serializers.ModelSerializer):
+    verificationcode = serializers.CharField()
+    class Meta:
+        model = CustomUser
+        fields = ('id','verificationcode')

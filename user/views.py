@@ -2,7 +2,7 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from knox.models import AuthToken
 from rest_framework.pagination import PageNumberPagination
-from .serializers import UserSerializer, RegisterSerializer, UserUpdateSerializer, SendOtpSerializer
+from .serializers import UserSerializer, RegisterSerializer, UserUpdateSerializer, SendOtpSerializer,VerifyOtpSerializer
 from django.contrib.auth import login
 from rest_framework.filters import SearchFilter
 from rest_framework import permissions
@@ -12,6 +12,7 @@ from .models import *
 import boto3
 from django.core.mail import send_mail
 import uuid
+import socket
 # Register API
 class RegisterAPI(generics.GenericAPIView):
     serializer_class = RegisterSerializer
@@ -104,18 +105,38 @@ class RestRequest(generics.GenericAPIView):
         email = request.data['emailaddress']
 
         try:
+            HOSTNAME = request.META['HTTP_HOST']
             otps = uuid.uuid4().hex[:6]
             user = CustomUser.objects.get(email=email)
             user.otp_code = otps
             user.save()
-
-            send_mail('Otp Verification', 'The Otp is  '+otps, 'mohamedarshadcholasseri5050@gmail.com',[email], fail_silently=False)
+            email_url = 'http://'+str(HOSTNAME)+'/api/v1/user/rest/verify?email='+email
+            email_msg = "<p>verification Code Is </p><br><h1>"+ otps +"</h1><a href='"+email_url+"'><button>Verify</button></a>"
+            print(email_msg)
+            email_res = send_mail('Otp Verification', 'The Otp is  '+otps, 'mohamedarshadcholasseri5050@gmail.com',[email], fail_silently=False,html_message=email_msg)
 
             return Response(data="Email Send Success")
         except CustomUser.DoesNotExist:
 
         
             return Response(data="This Email Not Logined")
+
+
+class RestVerify(generics.GenericAPIView):
+    serializer_class = VerifyOtpSerializer
+    def post(self, request):
+        
+        code = request.data['verificationcode']
+
+        try:
+            user = CustomUser.objects.get(otp_code=code,email=request.GET.get('email', ''))
+            user.otp_code = uuid.uuid4().hex[:6]
+            user.save()
+            return Response(data="Successfully Reset")
+
+        except CustomUser.DoesNotExist:
+            return Response(data="Invalid Otp Please Try Again")
+
 
 class DeleteAllUser(generics.GenericAPIView):
 
