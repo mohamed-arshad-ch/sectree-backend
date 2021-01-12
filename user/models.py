@@ -13,7 +13,9 @@ class CustomUser(AbstractUser):
     left_parent = models.CharField(max_length=100,null=True,blank=True)
     created_date = models.DateField(auto_now_add=True)
     refferal_code = models.CharField(default=uuid.uuid4().hex[:5],max_length=150,blank=True)
+    otp_code = models.CharField(max_length=150,blank=True)
     active = models.BooleanField(default=True)
+    email = models.EmailField(unique=True,blank=True)
 
 
 

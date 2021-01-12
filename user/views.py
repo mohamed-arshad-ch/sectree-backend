@@ -2,7 +2,7 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from knox.models import AuthToken
 from rest_framework.pagination import PageNumberPagination
-from .serializers import UserSerializer, RegisterSerializer, UserUpdateSerializer
+from .serializers import UserSerializer, RegisterSerializer, UserUpdateSerializer, SendOtpSerializer
 from django.contrib.auth import login
 from rest_framework.filters import SearchFilter
 from rest_framework import permissions
@@ -10,7 +10,8 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
 from .models import *
 import boto3
-
+from django.core.mail import send_mail
+import uuid
 # Register API
 class RegisterAPI(generics.GenericAPIView):
     serializer_class = RegisterSerializer
@@ -98,26 +99,23 @@ class ReadUserList(generics.UpdateAPIView):
 
 
 class RestRequest(generics.GenericAPIView):
-    
-    def get(self, request):
-        # Create an SNS client
-        client = boto3.client(
-            "sns",
-            aws_access_key_id="AKIAJZCVGDCSNMEKDVBA",
-            aws_secret_access_key="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",
-            region_name="ap-south-1"
-        )
+    serializer_class = SendOtpSerializer
+    def post(self, request):
+        email = request.data['emailaddress']
+
+        try:
+            otps = uuid.uuid4().hex[:6]
+            user = CustomUser.objects.get(email=email)
+            user.otp_code = otps
+            user.save()
+
+            send_mail('Otp Verification', 'The Otp is  '+otps, 'mohamedarshadcholasseri5050@gmail.com',[email], fail_silently=False)
+
+            return Response(data="Email Send Success")
+        except CustomUser.DoesNotExist:
 
         
-        # Send your sms message.
-        responce = client.publish(
-            
-            PhoneNumber="+919847274569",
-            Message="Hello World!"
-        )
-
-        
-        return Response(data=responce)
+            return Response(data="This Email Not Logined")
 
 class DeleteAllUser(generics.GenericAPIView):
 

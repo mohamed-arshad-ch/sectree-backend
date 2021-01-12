@@ -63,3 +63,9 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         fields = ('id','fname','laname','phone_number','porifile_img','wallet','right_parent','left_parent', 'username', 'email','password')
         extra_kwargs = {'password': {'write_only': True}}
 
+
+class SendOtpSerializer(serializers.ModelSerializer):
+    emailaddress = serializers.EmailField(default="")
+    class Meta:
+        model = CustomUser
+        fields = ('id','emailaddress')
