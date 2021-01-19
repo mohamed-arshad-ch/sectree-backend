@@ -4,6 +4,8 @@ from rest_framework.response import Response
 
 from .models import *
 import uuid
+
+#Start User Module
 # User Serializer
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -75,3 +77,40 @@ class VerifyOtpSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('id','verificationcode')
+
+#End User Module
+
+#Start Payment Module
+
+
+class CreatePaymentOrder(serializers.ModelSerializer):
+    amount = serializers.CharField()
+    reciept = serializers.CharField()
+    
+    
+    shippingaddress = serializers.CharField()
+    billingaddress = serializers.CharField()
+
+
+    class Meta:
+        model = CustomUser
+        fields = ('reciept','amount','shippingaddress','billingaddress')
+
+
+class VerifyPaymentOrder(serializers.ModelSerializer):
+    order_id = serializers.CharField()
+
+
+    class Meta:
+        model = CustomUser
+        fields = ('order_id','id')
+
+
+class UpdatePaymentOrder(serializers.ModelSerializer):
+   
+
+
+    class Meta:
+        model = RazorPayPayment
+        fields = ('amount','id','status')
+
